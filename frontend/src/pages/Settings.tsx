@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Settings as SettingsIcon, DollarSign, Save, RefreshCw, Loader2, Send, Plus, Trash2, CheckCircle, XCircle, Clock, MessageSquare, Users, Globe, Download, Database, Printer } from 'lucide-react'
+import { Settings as SettingsIcon, DollarSign, Save, RefreshCw, Loader2, Send, Plus, Trash2, CheckCircle, XCircle, Clock, MessageSquare, Users, Globe, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Button, Input, Card, CardContent, Badge } from '@/components/ui'
 import api from '@/services/api'
@@ -26,8 +26,6 @@ export default function SettingsPage() {
   const [reportEnabled, setReportEnabled] = useState(false)
   const [sendingReport, setSendingReport] = useState(false)
 
-  // Database backup state
-  const [downloadingBackup, setDownloadingBackup] = useState(false)
 
   // Fetch exchange rate
   const { data: exchangeRateData, isLoading } = useQuery({
@@ -693,99 +691,6 @@ export default function SettingsPage() {
                 <span className="text-text-secondary">{t('warehouse')}</span>
                 <Badge variant="secondary">{t('warehouseName')}</Badge>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Database Backup Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Database className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <h2 className="text-pos-lg font-bold">Ma'lumotlar Bazasi</h2>
-                <p className="text-sm text-text-secondary">Backup yuklab olish</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-700 mb-2">
-                  <strong>📦 Backup nima?</strong>
-                </p>
-                <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
-                  <li>Barcha tovarlar va kategoriyalar</li>
-                  <li>Barcha sotuvlar va cheklar</li>
-                  <li>Barcha mijozlar va qarzdorlar</li>
-                  <li>Ombor harakatlari</li>
-                  <li>Foydalanuvchilar</li>
-                  <li>Sozlamalar</li>
-                </ul>
-              </div>
-
-              <div className="bg-yellow-50 p-3 rounded-lg">
-                <p className="text-xs text-yellow-700">
-                  ⚠️ <strong>Maslahat:</strong> Har kuni ish yakunida backup oling va xavfsiz joyda saqlang.
-                </p>
-              </div>
-
-              <Button
-                variant="primary"
-                className="w-full bg-green-600 hover:bg-green-700"
-                onClick={async () => {
-                  setDownloadingBackup(true)
-                  try {
-                    const response = await api.get('/settings/database/backup', {
-                      responseType: 'blob'
-                    })
-
-                    // Create download link
-                    const url = window.URL.createObjectURL(new Blob([response.data]))
-                    const link = document.createElement('a')
-                    link.href = url
-
-                    // Get filename from header or generate
-                    const contentDisposition = response.headers['content-disposition']
-                    let filename = `${new Date().toLocaleDateString('ru-RU').replace(/\//g, '.')}.sql`
-                    if (contentDisposition) {
-                      const match = contentDisposition.match(/filename=(.+)/)
-                      if (match) filename = match[1]
-                    }
-
-                    link.setAttribute('download', filename)
-                    document.body.appendChild(link)
-                    link.click()
-                    link.remove()
-                    window.URL.revokeObjectURL(url)
-
-                    toast.success(`Backup yuklandi: ${filename}`)
-                  } catch (error: any) {
-                    console.error('Backup error:', error)
-                    toast.error(error.response?.data?.detail || 'Backup yuklab olishda xatolik')
-                  } finally {
-                    setDownloadingBackup(false)
-                  }
-                }}
-                disabled={downloadingBackup}
-              >
-                {downloadingBackup ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    Yuklanmoqda...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-5 h-5 mr-2" />
-                    Backup Yuklab Olish
-                  </>
-                )}
-              </Button>
-
-              <p className="text-xs text-center text-text-secondary">
-                Fayl nomi: {new Date().toLocaleDateString('ru-RU').replace(/\//g, '.')}.sql
-              </p>
             </div>
           </CardContent>
         </Card>

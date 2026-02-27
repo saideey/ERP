@@ -3,13 +3,11 @@ Settings router - System configuration management.
 """
 
 import os
-import subprocess
-import tempfile
 from typing import Optional, List
 from decimal import Decimal
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import FileResponse
+
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
@@ -1280,121 +1278,6 @@ async def get_daily_report_data(
             "message": str(e)
         }
 
-
-@router.get(
-    "/database/backup",
-    summary="Ma'lumotlar bazasini yuklab olish",
-    dependencies=[Depends(PermissionChecker([PermissionType.SETTINGS_MANAGE]))]
-)
-async def download_database_backup(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Download full PostgreSQL database backup.
-    Creates a complete backup with all data (sales, customers, products, etc.)
-    Filename format: DD.MM.YYYY.sql
-    """
-
-    # Get database connection info from DATABASE_URL or environment
-    database_url = os.getenv("DATABASE_URL", "")
-
-    if database_url:
-        # Parse DATABASE_URL: postgresql://user:password@host:port/dbname
-        # Example: postgresql://postgres:postgres@db:5432/metall_basa
-        try:
-            from urllib.parse import urlparse
-            parsed = urlparse(database_url)
-            db_host = parsed.hostname or "db"
-            db_port = str(parsed.port or 5432)
-            db_name = parsed.path.lstrip("/") or "metall_basa"
-            db_user = parsed.username or "postgres"
-            db_password = parsed.password or "postgres"
-        except Exception:
-            db_host = os.getenv("POSTGRES_HOST", "db")
-            db_port = os.getenv("POSTGRES_PORT", "5432")
-            db_name = os.getenv("POSTGRES_DB", "metall_basa")
-            db_user = os.getenv("POSTGRES_USER", "postgres")
-            db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
-    else:
-        db_host = os.getenv("POSTGRES_HOST", "db")
-        db_port = os.getenv("POSTGRES_PORT", "5432")
-        db_name = os.getenv("POSTGRES_DB", "metall_basa")
-        db_user = os.getenv("POSTGRES_USER", "postgres")
-        db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
-
-    # Generate filename with today's date (Tashkent time)
-    today = get_tashkent_today()
-    filename = f"{today.strftime('%d.%m.%Y')}.sql"
-
-    # Create temporary file for backup
-    temp_dir = tempfile.gettempdir()
-    backup_path = os.path.join(temp_dir, filename)
-
-    try:
-        # Set password environment variable for pg_dump
-        env = os.environ.copy()
-        env["PGPASSWORD"] = db_password
-
-        # Run pg_dump command
-        cmd = [
-            "pg_dump",
-            "-h", db_host,
-            "-p", db_port,
-            "-U", db_user,
-            "-d", db_name,
-            "-F", "p",  # Plain text format
-            "--no-owner",
-            "--no-acl",
-            "-f", backup_path
-        ]
-
-        result = subprocess.run(
-            cmd,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
-
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Backup xatoligi: {result.stderr}"
-            )
-
-        # Check if file was created
-        if not os.path.exists(backup_path):
-            raise HTTPException(
-                status_code=500,
-                detail="Backup fayli yaratilmadi"
-            )
-
-        # Return file for download
-        return FileResponse(
-            path=backup_path,
-            filename=filename,
-            media_type="application/sql",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}"
-            }
-        )
-
-    except subprocess.TimeoutExpired:
-        raise HTTPException(
-            status_code=500,
-            detail="Backup vaqti tugadi (timeout)"
-        )
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=500,
-            detail="pg_dump topilmadi. PostgreSQL client o'rnatilganligini tekshiring."
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Backup xatoligi: {str(e)}"
-        )
 
 
 # ==================== TENANT LIMITS ====================

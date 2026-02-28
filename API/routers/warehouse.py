@@ -2,6 +2,7 @@
 Warehouse router - Stock management, movements, and transfers.
 """
 
+import os
 from typing import Optional
 from decimal import Decimal
 from datetime import date
@@ -891,8 +892,11 @@ async def ai_parse_income_image(
     except Exception:
         pass
 
-    GROQ_API_KEY = "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"
-    GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+    GROQ_MODEL = os.environ.get("GROQ_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+
+    if not GROQ_API_KEY:
+        raise HTTPException(500, "GROQ_API_KEY sozlanmagan. docker-compose.yml ga qo'shing.")
 
     prompt = f"""Siz omborga kirim qilish uchun rasmdan tovar ma'lumotlarini ajratib oluvchi yordamchisiz.
 

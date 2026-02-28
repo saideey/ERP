@@ -63,6 +63,8 @@ services:
       SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:-ERP937431011}
       SUPER_ADMIN_PIN: ${SUPER_ADMIN_PIN:-IFTIHOR52}
       SUPER_ADMIN_CODE: ${SUPER_ADMIN_CODE:-LALAKU5lik}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-meta-llama/llama-4-scout-17b-16e-instruct}
       TZ: ${TZ:-Asia/Tashkent}
     ports:
       - "${API_PORT:-8000}:8000"

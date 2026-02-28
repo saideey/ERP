@@ -67,6 +67,13 @@ export default function WarehousePage() {
   const [incomeCurrency, setIncomeCurrency] = useState<IncomeCurrency>('USD')
   const [activeTab, setActiveTab] = useState<'stock' | 'history' | 'transfer' | 'manage'>('stock')
 
+  // AI kirim state
+  const [showAiModal, setShowAiModal] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiResults, setAiResults] = useState<any[]>([])
+  const [aiPreview, setAiPreview] = useState<string | null>(null)
+  
+
   // History filters
   const [movementFilter, setMovementFilter] = useState<MovementFilter>('all')
   const [startDate, setStartDate] = useState<string>('')
@@ -261,6 +268,7 @@ export default function WarehousePage() {
       queryClient.invalidateQueries({ queryKey: ['low-stock'] })
       setShowIncomeDialog(false)
       setIncomeCurrency('USD')
+      
       reset()
     },
     onError: (error: any) => {
@@ -330,6 +338,77 @@ export default function WarehousePage() {
       return
     }
     stockIncome.mutate({ ...data, currency: incomeCurrency })
+  }
+
+  // AI image parsing handler
+  const handleAiImageUpload = async (file: File) => {
+    setAiLoading(true)
+    setAiResults([])
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const { data } = await api.post('/warehouse/income/ai-parse', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000,
+      })
+      if (data.items && data.items.length > 0) {
+        setAiResults(data.items)
+        const msg = data.created_count > 0
+          ? `AI ${data.items_count} ta tovar topdi (${data.created_count} ta yangi yaratildi)`
+          : `AI ${data.items_count} ta tovar topdi`
+        toast.success(msg)
+        // Refresh products list since new ones may have been created
+        if (data.created_count > 0) {
+          queryClient.invalidateQueries({ queryKey: ['products-for-select'] })
+        }
+      } else {
+        toast.error('AI rasmdan tovar topa olmadi')
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'AI xatolik yuz berdi')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  // Apply AI results to income form
+  const applyAiResults = () => {
+    if (aiResults.length === 0) {
+      toast.error('Tovar topilmadi')
+      return
+    }
+    // All items now have product_id (auto-created if needed)
+    const newItems = aiResults.map(r => ({
+      product_id: r.product_id,
+      quantity: r.quantity || 1,
+      uom_id: r.uom_id || 1,
+      unit_price_usd: r.price_usd || 0,
+      unit_price_uzs: r.price_uzs || 0,
+    }))
+
+    // Use reset to set entire form at once
+    const currentWarehouse = watch('warehouse_id')
+    const currentDoc = watch('document_number')
+    const currentSupplier = watch('supplier_name')
+    const currentNotes = watch('notes')
+    reset({
+      warehouse_id: currentWarehouse || 0,
+      document_number: currentDoc || '',
+      supplier_name: currentSupplier || '',
+      notes: currentNotes || '',
+      items: newItems,
+    })
+
+    
+    setShowAiModal(false)
+    setAiResults([])
+    setAiPreview(null)
+    const newCount = aiResults.filter(r => r.is_new_product).length
+    if (newCount > 0) {
+      toast.success(`${aiResults.length} ta tovar qo'shildi (${newCount} ta yangi yaratildi)`)
+    } else {
+      toast.success(`${aiResults.length} ta tovar qo'shildi`)
+    }
   }
 
   // Calculate total for income form based on currency
@@ -906,15 +985,26 @@ export default function WarehousePage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <label className="font-medium">{t('productsLabel')}</label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ product_id: 0, quantity: 1, uom_id: 1, unit_price_usd: 0, unit_price_uzs: 0 })}
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  {t('add')}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700"
+                    onClick={() => { setShowAiModal(true); setAiResults([]); setAiPreview(null) }}
+                  >
+                    <span className="mr-1">🤖</span>
+                    AI Kirim
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ product_id: 0, quantity: 1, uom_id: 1, unit_price_usd: 0, unit_price_uzs: 0 })}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {t('add')}
+                  </Button>
+                </div>
               </div>
 
               <div className="border border-border rounded-pos">
@@ -957,6 +1047,7 @@ export default function WarehousePage() {
                           <td className="px-3 py-2">
                             <Input
                               type="number"
+                              step="any"
                               {...register(`items.${index}.quantity`, { valueAsNumber: true })}
                               className="text-center text-sm w-full"
                               placeholder="0"
@@ -978,7 +1069,7 @@ export default function WarehousePage() {
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary font-bold">$</span>
                                 <Input
                                   type="number"
-                                  step="0.01"
+                                  step="any"
                                   {...register(`items.${index}.unit_price_usd`, { valueAsNumber: true })}
                                   className="text-center text-sm pl-6 w-full"
                                   placeholder="0.00"
@@ -987,7 +1078,7 @@ export default function WarehousePage() {
                             ) : (
                               <Input
                                 type="number"
-                                step="1"
+                                step="any"
                                 {...register(`items.${index}.unit_price_uzs`, { valueAsNumber: true })}
                                 className="text-center text-sm w-full"
                                 placeholder="0"
@@ -1055,13 +1146,134 @@ export default function WarehousePage() {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => { setShowIncomeDialog(false); setIncomeCurrency('USD'); }}>{t('cancel')}</Button>
+              <Button type="button" variant="outline" onClick={() => { setShowIncomeDialog(false); setIncomeCurrency('USD');  }}>{t('cancel')}</Button>
               <Button type="submit" variant="success" disabled={stockIncome.isPending}>
                 {stockIncome.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <TrendingUp className="w-4 h-4 mr-2" />}
                 {t('saveIncome')}
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Image Parsing Modal */}
+      <Dialog open={showAiModal} onOpenChange={(v) => { if (!aiLoading) { setShowAiModal(v); setAiResults([]); setAiPreview(null) } }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>🤖 AI yordamida kirim</DialogTitle>
+            <DialogDescription>Nakladnoy yoki tovarlar ro'yxati rasmini yuklang. AI tovar nomi, miqdori va narxini aniqlaydi.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Upload area */}
+            {!aiPreview && !aiLoading && aiResults.length === 0 && (
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-purple-300 rounded-xl cursor-pointer bg-purple-50/50 hover:bg-purple-100/50 transition">
+                <div className="text-center">
+                  <span className="text-4xl">📸</span>
+                  <p className="text-sm font-medium text-purple-700 mt-2">Rasmni tanlang yoki shu yerga tashlang</p>
+                  <p className="text-xs text-purple-400 mt-1">JPG, PNG — nakladnoy, faktura, qo'lda yozilgan ro'yxat</p>
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={e => {
+                  const f = e.target.files?.[0]
+                  if (f) {
+                    setAiPreview(URL.createObjectURL(f))
+                    handleAiImageUpload(f)
+                  }
+                }} />
+              </label>
+            )}
+
+            {/* Preview + Loading */}
+            {aiPreview && (
+              <div className="relative">
+                <img src={aiPreview} alt="Preview" className="w-full max-h-48 object-contain rounded-xl border" />
+                {aiLoading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+                      <p className="text-sm font-medium">AI tahlil qilmoqda...</p>
+                      <p className="text-xs text-gray-300 mt-1">Bu 10-30 sekund olishi mumkin</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Results */}
+            {aiResults.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-700">
+                    AI topilgan tovarlar ({aiResults.length} ta)
+                  </p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 bg-emerald-500 rounded-full" /> Mavjud</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded-full" /> Yangi yaratildi</span>
+                  </div>
+                </div>
+
+                <div className="border rounded-xl overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Tovar</th>
+                        <th className="px-3 py-2 text-center">Miqdor</th>
+                        <th className="px-3 py-2 text-center">Birlik</th>
+                        <th className="px-3 py-2 text-right">Narx (USD)</th>
+                        <th className="px-3 py-2 text-right">Narx (UZS)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {aiResults.map((r, i) => (
+                        <tr key={i} className={r.is_new_product ? 'bg-blue-50/50' : 'bg-emerald-50/50'}>
+                          <td className="px-3 py-2">
+                            <span className="text-xs font-medium">
+                              {r.is_new_product ? '🆕 ' : '✓ '}{r.product_name}
+                            </span>
+                            {r.is_new_product && r.detected_name !== r.product_name && (
+                              <p className="text-[10px] text-gray-400">rasmdan: {r.detected_name}</p>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-center font-mono">{r.quantity}</td>
+                          <td className="px-3 py-2 text-center text-xs">{r.uom_symbol}</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">${formatNumber(r.price_usd, 2)}</td>
+                          <td className="px-3 py-2 text-right font-mono text-xs">{formatNumber(r.price_uzs)} so'm</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <p className="text-xs text-blue-700">
+                    <strong>💡 Eslatma:</strong> Bazada topilmagan tovarlar avtomatik yaratildi (🆕).
+                    Kirimga qo'shgandan keyin narx, miqdor va o'lchov birligini tekshiring.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            {aiResults.length > 0 ? (
+              <>
+                <Button type="button" variant="outline" onClick={() => { setAiResults([]); setAiPreview(null) }}>
+                  Boshqa rasm
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-gradient-to-r from-violet-500 to-purple-600 text-white"
+                  onClick={applyAiResults}
+                >
+                  ✓ Kirimga qo'shish ({aiResults.length} ta)
+                </Button>
+              </>
+            ) : (
+              <Button type="button" variant="outline" onClick={() => setShowAiModal(false)} disabled={aiLoading}>
+                Yopish
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1085,7 +1297,7 @@ export default function WarehousePage() {
                   <label className="font-medium text-sm">{t('quantity')}</label>
                   <Input
                     type="number"
-                    step="0.01"
+                    step="any"
                     value={editingMovement.quantity}
                     onChange={(e) => setEditingMovement({...editingMovement, quantity: parseFloat(e.target.value) || 0})}
                   />
@@ -1125,7 +1337,7 @@ export default function WarehousePage() {
                   <label className="font-medium text-sm">{t('priceUsd')}</label>
                   <Input
                     type="number"
-                    step="0.01"
+                    step="any"
                     value={editingMovement.unit_price_usd || ''}
                     onChange={(e) => setEditingMovement({
                       ...editingMovement,
@@ -1138,7 +1350,7 @@ export default function WarehousePage() {
                   <label className="font-medium text-sm">{t('priceUzs')}</label>
                   <Input
                     type="number"
-                    step="1"
+                    step="any"
                     value={editingMovement.unit_price}
                     onChange={(e) => setEditingMovement({...editingMovement, unit_price: parseFloat(e.target.value) || 0})}
                   />

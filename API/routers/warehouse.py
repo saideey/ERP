@@ -5,7 +5,7 @@ Warehouse router - Stock management, movements, and transfers.
 from typing import Optional
 from decimal import Decimal
 from datetime import date
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -818,3 +818,290 @@ async def delete_movement(
             "deleted_at": movement.deleted_at
         }
     }
+
+
+# ==================== AI IMAGE PARSING ====================
+
+@router.post(
+    "/income/ai-parse",
+    summary="AI yordamida rasmdan tovarlarni aniqlash",
+    dependencies=[Depends(PermissionChecker([PermissionType.STOCK_INCOME]))]
+)
+async def ai_parse_income_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Upload invoice/receipt image. AI extracts product names, quantities, prices, units.
+    Auto-creates missing products. Returns all items with product_id.
+    """
+    import base64
+    import httpx
+    import json
+    import re
+    from decimal import Decimal as D
+    from database.models import Product, UnitOfMeasure
+
+    # Validate file
+    if not file.content_type or not file.content_type.startswith('image/'):
+        raise HTTPException(400, "Faqat rasm fayllari qabul qilinadi")
+
+    image_data = await file.read()
+    if len(image_data) > 20 * 1024 * 1024:
+        raise HTTPException(400, "Rasm hajmi 20MB dan katta bo'lmasligi kerak")
+
+    base64_image = base64.b64encode(image_data).decode('utf-8')
+    mime_type = file.content_type or 'image/jpeg'
+    tenant_id = current_user.tenant_id
+
+    # Get existing products and UOMs
+    products = db.query(Product).filter(
+        Product.tenant_id == tenant_id,
+        Product.is_active == True,
+        Product.is_deleted == False,
+    ).all()
+
+    uoms = db.query(UnitOfMeasure).filter(
+        UnitOfMeasure.tenant_id == tenant_id,
+        UnitOfMeasure.is_active == True,
+    ).all()
+
+    product_list_str = "\n".join(f"- {p.name}" for p in products[:500])
+    uom_list_str = ", ".join(f"{u.name}({u.symbol})" for u in uoms)
+
+    # Get exchange rate
+    exchange_rate = 12800.0  # default
+    try:
+        from core.config import get_settings
+        settings = get_settings()
+        if hasattr(settings, 'usd_rate'):
+            exchange_rate = float(settings.usd_rate)
+    except Exception:
+        pass
+
+    # Try getting from tenant settings or use hardcoded
+    try:
+        from database.models import Tenant
+        tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+        if tenant and tenant.settings:
+            rate = tenant.settings.get('usd_rate')
+            if rate:
+                exchange_rate = float(rate)
+    except Exception:
+        pass
+
+    GROQ_API_KEY = "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"
+    GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+
+    prompt = f"""Siz omborga kirim qilish uchun rasmdan tovar ma'lumotlarini ajratib oluvchi yordamchisiz.
+
+Bu rasmda yetkazib beruvchidan kelgan tovarlar ro'yxati (nakladnoy, faktura, yoki qo'lda yozilgan ro'yxat) bor.
+
+VAZIFA: Rasmdan BARCHA tovarlarni toping va har biri uchun:
+1. name — tovar nomi (rasmda yozilganidek, to'liq va aniq)
+2. quantity — miqdori (soni, raqam)
+3. price — birlik narxi (raqam, agar ko'rinsa)
+4. currency — narx valyutasi: "USD" yoki "UZS" (rasmdan aniqlang, agar aniq bo'lmasa "UZS")
+5. unit — o'lchov birligi (rasmdan: dona, kg, metr, list, pachka, rulon, sht, shtuk, m, m2, m3, litr va h.k.)
+
+Mavjud tovarlar bazasi (agar rasmdan o'qilgan nom shunga yaqin bo'lsa, "matched_name" da bazadagi nomni yozing):
+{product_list_str}
+
+Mavjud o'lchov birliklari: {uom_list_str}
+
+MUHIM QOIDALAR:
+- Javobni FAQAT JSON formatda bering, boshqa hech narsa yozmang
+- Agar narx ko'rinmasa price: 0
+- Agar miqdor ko'rinmasa quantity: 1
+- Agar o'lchov birligi ko'rinmasa unit: "dona"
+- matched_name — bazadagi eng yaqin mos nom. Agar mos kelmasa null
+- currency — agar $ belgisi bo'lsa "USD", aks holda "UZS"
+
+Format:
+[
+  {{"name": "Armatur 12D", "matched_name": null, "quantity": 100, "price": 15000, "currency": "UZS", "unit": "dona"}},
+  {{"name": "Sement M400", "matched_name": "Sement M-400 Qizilqum", "quantity": 50, "price": 85000, "currency": "UZS", "unit": "kg"}}
+]"""
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": GROQ_MODEL,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:{mime_type};base64,{base64_image}"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "max_tokens": 4096,
+                    "temperature": 0.1,
+                }
+            )
+
+        if response.status_code != 200:
+            raise HTTPException(500, f"AI xatolik: {response.text[:200]}")
+
+        result = response.json()
+        ai_text = result["choices"][0]["message"]["content"]
+
+        json_match = re.search(r'\[[\s\S]*\]', ai_text)
+        if not json_match:
+            raise HTTPException(500, "AI javobidan ma'lumot ajratib bo'lmadi")
+
+        items_raw = json.loads(json_match.group())
+
+        # Build lookup maps
+        product_map = {}
+        for p in products:
+            product_map[p.name.lower().strip()] = p
+
+        uom_map = {}
+        for u in uoms:
+            uom_map[u.name.lower().strip()] = u
+            uom_map[u.symbol.lower().strip()] = u
+        # Common aliases
+        uom_aliases = {
+            "dona": "dona", "sht": "dona", "shtuk": "dona", "шт": "dona", "pcs": "dona",
+            "kg": "kg", "кг": "kg", "kilogram": "kg",
+            "metr": "metr", "m": "metr", "м": "metr", "meter": "metr",
+            "m2": "m2", "м2": "m2", "kv.m": "m2",
+            "m3": "m3", "м3": "m3", "kub.m": "m3",
+            "litr": "litr", "l": "litr", "л": "litr",
+            "list": "list", "лист": "list",
+            "pachka": "pachka", "пачка": "pachka", "pack": "pachka",
+            "rulon": "rulon", "рулон": "rulon", "roll": "rulon",
+            "tonna": "tonna", "t": "tonna", "т": "tonna",
+        }
+
+        def find_uom(unit_str: str):
+            """Find UOM by name/symbol/alias."""
+            if not unit_str:
+                return None
+            key = unit_str.lower().strip()
+            # Direct match
+            if key in uom_map:
+                return uom_map[key]
+            # Alias match
+            alias = uom_aliases.get(key)
+            if alias and alias in uom_map:
+                return uom_map[alias]
+            # Partial match
+            for uname, u in uom_map.items():
+                if key in uname or uname in key:
+                    return u
+            return None
+
+        # Default UOM (first one, usually "dona")
+        default_uom = uoms[0] if uoms else None
+
+        result_items = []
+        created_count = 0
+
+        for item in items_raw:
+            name = str(item.get("name", "")).strip()
+            if not name:
+                continue
+
+            matched_name = item.get("matched_name")
+            quantity = float(item.get("quantity", 1) or 1)
+            price = float(item.get("price", 0) or 0)
+            currency = str(item.get("currency", "UZS")).upper()
+            unit_str = str(item.get("unit", "dona"))
+
+            # Find UOM
+            matched_uom = find_uom(unit_str)
+            uom_id = matched_uom.id if matched_uom else (default_uom.id if default_uom else 1)
+            uom_symbol = matched_uom.symbol if matched_uom else (default_uom.symbol if default_uom else "dona")
+
+            # Calculate both prices
+            if currency == "USD":
+                price_usd = price
+                price_uzs = price * exchange_rate
+            else:
+                price_uzs = price
+                price_usd = price / exchange_rate if exchange_rate > 0 else 0
+
+            # Find or create product
+            product = None
+            if matched_name:
+                product = product_map.get(matched_name.lower().strip())
+
+            # Fuzzy search
+            if not product:
+                name_lower = name.lower()
+                for pname, p in product_map.items():
+                    if name_lower in pname or pname in name_lower:
+                        product = p
+                        break
+
+            # Auto-create if not found
+            is_new = False
+            if not product:
+                new_product = Product(
+                    tenant_id=tenant_id,
+                    name=name,
+                    base_uom_id=uom_id,
+                    cost_price=D(str(round(price_uzs, 2))),
+                    sale_price=D(str(round(price_uzs * 1.2, 2))),  # 20% margin default
+                    sale_price_usd=D(str(round(price_usd * 1.2, 4))),
+                    is_active=True,
+                    track_stock=True,
+                )
+                db.add(new_product)
+                db.flush()  # Get ID
+                product = new_product
+                product_map[name.lower().strip()] = product
+                is_new = True
+                created_count += 1
+
+            result_items.append({
+                "product_id": product.id,
+                "product_name": product.name,
+                "detected_name": name,
+                "quantity": quantity,
+                "price_usd": round(price_usd, 4),
+                "price_uzs": round(price_uzs, 0),
+                "currency_detected": currency,
+                "uom_id": uom_id,
+                "uom_symbol": uom_symbol,
+                "is_new_product": is_new,
+                "confidence": "low" if is_new else "high",
+            })
+
+        db.commit()
+
+        return {
+            "success": True,
+            "items_count": len(result_items),
+            "created_count": created_count,
+            "exchange_rate": exchange_rate,
+            "items": result_items,
+        }
+
+    except httpx.TimeoutException:
+        db.rollback()
+        raise HTTPException(504, "AI javob bermadi (timeout). Qayta urinib ko'ring.")
+    except json.JSONDecodeError:
+        db.rollback()
+        raise HTTPException(500, "AI javobini o'qib bo'lmadi")
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(500, f"AI xatolik: {str(e)[:200]}")

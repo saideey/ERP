@@ -39,7 +39,7 @@ class TenantCreate(BaseModel):
                 "Uzunligi 3-50 belgi."
             )
         # Reserved slugs
-        reserved = ['super', 'admin', 'api', 'login', 'register', 'health', 'docs', 'static']
+        reserved = ['super', 'admin', 'api', 'login', 'register', 'health', 'docs', 'static', 'shop', 's-panel']
         if v in reserved:
             raise ValueError(f"'{v}' slug band qilingan")
         return v

@@ -358,6 +358,63 @@ async def test_telegram_notification(
         }
 
 
+# ==================== SHOP CONTACT SETTINGS ====================
+
+@router.get(
+    "/shop-contacts",
+    summary="Online do'kon aloqa ma'lumotlari",
+    dependencies=[Depends(PermissionChecker([PermissionType.SETTINGS_VIEW]))]
+)
+async def get_shop_contacts(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    from database.models import Tenant
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    settings = tenant.settings or {}
+    return {
+        "telegram_username": settings.get("telegram_username", ""),
+        "whatsapp_number": settings.get("whatsapp_number", tenant.phone or ""),
+        "working_hours": settings.get("shop", {}).get("working_hours", "09:00 — 18:00"),
+        "description": settings.get("shop", {}).get("description", ""),
+    }
+
+
+@router.put(
+    "/shop-contacts",
+    summary="Online do'kon aloqa ma'lumotlarini yangilash",
+    dependencies=[Depends(PermissionChecker([PermissionType.SETTINGS_MANAGE]))]
+)
+async def update_shop_contacts(
+    body: dict,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    from database.models import Tenant
+    from sqlalchemy.orm.attributes import flag_modified
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    settings = dict(tenant.settings) if tenant.settings else {}
+
+    if "telegram_username" in body:
+        settings["telegram_username"] = str(body["telegram_username"]).strip()
+    if "whatsapp_number" in body:
+        settings["whatsapp_number"] = str(body["whatsapp_number"]).strip()
+    if "working_hours" in body:
+        shop = settings.get("shop", {})
+        shop["working_hours"] = str(body["working_hours"]).strip()
+        settings["shop"] = shop
+    if "description" in body:
+        shop = settings.get("shop", {})
+        shop["description"] = str(body["description"]).strip()
+        settings["shop"] = shop
+
+    tenant.settings = settings
+    flag_modified(tenant, 'settings')
+    db.commit()
+    return {"success": True}
+
+
+# ==================== TENANT LIMITS ====================
 @router.get(
     "/{key}",
     summary="Bitta sozlama"
@@ -1280,7 +1337,6 @@ async def get_daily_report_data(
 
 
 
-# ==================== TENANT LIMITS ====================
 
 @router.get(
     "/limits",

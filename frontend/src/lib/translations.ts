@@ -74,6 +74,7 @@ type TranslationKeys = {
   sales: string
   warehouse: string
   partners: string
+  expenses: string
   reports: string
   settings: string
   users: string
@@ -647,6 +648,7 @@ export const translations: Record<LanguageCode, TranslationKeys> = {
     sales: 'Sotuvlar',
     warehouse: 'Ombor',
     partners: 'Hamkorlar',
+    expenses: 'Chiqimlar',
     reports: 'Hisobotlar',
     settings: 'Sozlamalar',
     users: 'Foydalanuvchilar',
@@ -1219,6 +1221,7 @@ export const translations: Record<LanguageCode, TranslationKeys> = {
     sales: 'Продажи',
     warehouse: 'Склад',
     partners: 'Партнёры',
+    expenses: 'Расходы',
     reports: 'Отчеты',
     settings: 'Настройки',
     users: 'Пользователи',
@@ -1791,6 +1794,7 @@ export const translations: Record<LanguageCode, TranslationKeys> = {
     sales: 'Сотувлар',
     warehouse: 'Омбор',
     partners: 'Ҳамкорлар',
+    expenses: 'Чиқимлар',
     reports: 'Ҳисоботлар',
     settings: 'Созламалар',
     users: 'Фойдаланувчилар',

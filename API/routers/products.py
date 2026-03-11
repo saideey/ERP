@@ -4,7 +4,7 @@ Products router - CRUD operations for products, categories, and UOMs.
 
 from typing import Optional, List, Union
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
 from sqlalchemy.orm import Session, joinedload
 from pydantic import BaseModel
 
@@ -632,3 +632,85 @@ async def delete_uom_conversion(
     db.commit()
 
     return {"success": True, "message": "O'lchov birligi o'chirildi"}
+
+
+# ==================== PRODUCT IMAGE UPLOAD ====================
+
+@router.post(
+    "/{product_id}/image",
+    summary="Tovar rasmini yuklash",
+    dependencies=[Depends(PermissionChecker([PermissionType.PRODUCT_EDIT]))]
+)
+async def upload_product_image(
+    product_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Upload product image. Saves to /uploads/products/ directory."""
+    import os
+    import uuid
+
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.tenant_id == current_user.tenant_id,
+    ).first()
+    if not product:
+        raise HTTPException(404, "Tovar topilmadi")
+
+    if not file.content_type or not file.content_type.startswith('image/'):
+        raise HTTPException(400, "Faqat rasm fayllari qabul qilinadi")
+
+    # Create directory
+    upload_dir = f"/app/uploads/products/{current_user.tenant_id}"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Generate unique filename
+    ext = file.filename.rsplit('.', 1)[-1] if '.' in (file.filename or '') else 'jpg'
+    filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+    filepath = os.path.join(upload_dir, filename)
+
+    # Save file
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(400, "Rasm hajmi 10MB dan katta bo'lmasligi kerak")
+
+    with open(filepath, 'wb') as f:
+        f.write(content)
+
+    # Update product
+    image_url = f"/uploads/products/{current_user.tenant_id}/{filename}"
+    product.image_url = image_url
+    db.commit()
+
+    return {"success": True, "image_url": image_url}
+
+
+@router.delete(
+    "/{product_id}/image",
+    summary="Tovar rasmini o'chirish",
+    dependencies=[Depends(PermissionChecker([PermissionType.PRODUCT_EDIT]))]
+)
+async def delete_product_image(
+    product_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Remove product image."""
+    import os
+
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.tenant_id == current_user.tenant_id,
+    ).first()
+    if not product:
+        raise HTTPException(404, "Tovar topilmadi")
+
+    if product.image_url:
+        filepath = f"/app{product.image_url}"
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        product.image_url = None
+        db.commit()
+
+    return {"success": True, "message": "Rasm o'chirildi"}

@@ -89,6 +89,63 @@ async def get_subscription_plans(
     return {"plans": get_all_plans()}
 
 
+
+# ==================== SHOP CATEGORIES (Global) ====================
+
+@router.get("/shop-categories")
+async def list_shop_categories(
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
+    from database.models import ShopCategoryModel
+    cats = db.query(ShopCategoryModel).filter(
+        ShopCategoryModel.is_active == True
+    ).order_by(ShopCategoryModel.sort_order, ShopCategoryModel.name).all()
+    return {
+        "categories": [
+            {"id": c.id, "name": c.name, "icon": c.icon, "description": c.description, "sort_order": c.sort_order}
+            for c in cats
+        ]
+    }
+
+
+@router.post("/shop-categories")
+async def create_shop_category(
+    body: dict,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
+    from database.models import ShopCategoryModel
+    name = (body.get("name") or "").strip()
+    if not name:
+        raise HTTPException(400, "Nom kiritilmagan")
+    cat = ShopCategoryModel(
+        name=name,
+        icon=body.get("icon", "🏪"),
+        description=body.get("description", ""),
+        sort_order=body.get("sort_order", 0),
+    )
+    db.add(cat)
+    db.commit()
+    return {"success": True, "id": cat.id, "name": cat.name}
+
+
+@router.delete("/shop-categories/{cat_id}")
+async def delete_shop_category(
+    cat_id: int,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
+    from database.models import ShopCategoryModel
+    cat = db.query(ShopCategoryModel).filter(ShopCategoryModel.id == cat_id).first()
+    if not cat:
+        raise HTTPException(404, "Kategoriya topilmadi")
+    cat.is_active = False
+    db.commit()
+    return {"success": True}
+
+
+# ==================== TENANT LOCATION ====================
 @router.get("/{tenant_id}", response_model=TenantResponse)
 async def get_tenant(
     tenant_id: int,
@@ -351,6 +408,8 @@ DEFAULT_FEATURES = {
     "customers": True,
     "daily_report": True,
     "reports": True,
+    "online_shop": False,
+    "expenses": True,
 }
 
 
@@ -473,4 +532,56 @@ async def update_tenant_allowed_ips(
         "success": True,
         "allowed_ips": validated,
         "ip_restriction_enabled": bool(validated)
+    }
+
+
+@router.put("/{tenant_id}/location")
+async def update_tenant_location(
+    tenant_id: int,
+    body: dict,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
+    """Update tenant location (lat, lng, region, district, shop_category_id)."""
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(404, "Kompaniya topilmadi")
+
+    if "latitude" in body:
+        tenant.latitude = body["latitude"]
+    if "longitude" in body:
+        tenant.longitude = body["longitude"]
+    if "region" in body:
+        tenant.region = body["region"]
+    if "district" in body:
+        tenant.district = body["district"]
+    if "shop_category_id" in body:
+        tenant.shop_category_id = body["shop_category_id"] or None
+
+    db.commit()
+    return {
+        "success": True,
+        "latitude": float(tenant.latitude) if tenant.latitude else None,
+        "longitude": float(tenant.longitude) if tenant.longitude else None,
+        "region": tenant.region,
+        "district": tenant.district,
+        "shop_category_id": tenant.shop_category_id,
+    }
+
+
+@router.get("/{tenant_id}/location")
+async def get_tenant_location(
+    tenant_id: int,
+    admin: SuperAdmin = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(404, "Kompaniya topilmadi")
+    return {
+        "latitude": float(tenant.latitude) if tenant.latitude else None,
+        "longitude": float(tenant.longitude) if tenant.longitude else None,
+        "region": tenant.region,
+        "district": tenant.district,
+        "shop_category_id": tenant.shop_category_id,
     }

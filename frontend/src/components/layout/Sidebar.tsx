@@ -19,6 +19,7 @@ import {
   Receipt,
   ChevronDown,
   Link2,
+  Wallet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
@@ -42,6 +43,7 @@ const navItems: NavItem[] = [
   { nameKey: 'customers', href: 'customers', icon: Users, featureKey: 'customers' },
   { nameKey: 'warehouse', href: 'warehouse', icon: Warehouse },
   { nameKey: 'partners', href: 'partners', icon: Link2, featureKey: 'partners' },
+  { nameKey: 'expenses', href: 'expenses', icon: Wallet, permission: 'FINANCE_VIEW', featureKey: 'expenses' },
   { nameKey: 'reports', href: 'reports', icon: FileText, permission: 'REPORT_SALES', featureKey: 'reports' },
   { nameKey: 'users', href: 'users', icon: UsersRound, permission: 'USER_VIEW' },
   { nameKey: 'settings', href: 'settings', icon: Settings, permission: 'SETTINGS_VIEW' },

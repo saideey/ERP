@@ -83,7 +83,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="X ERP SYSTEM API",
     description="""
-    Multi-tenant SaaS ERP tizimi qurilish mollari do'konlari uchun.
+    Multi-tenant SaaS ERP tizimi — universal biznes boshqaruv platformasi.
     
     ## Tenant API: /api/v1/{tenant_slug}/...
     * **Auth** - Kirish, chiqish, token yangilash
@@ -119,6 +119,7 @@ app.add_middleware(GeoBlockMiddleware)
 
 # Serve uploaded files (logos, etc.)
 os.makedirs("/app/uploads/logos", exist_ok=True)
+os.makedirs("/app/uploads/products", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
 
@@ -301,8 +302,15 @@ app.include_router(settings_router, prefix=f"{TENANT_PREFIX}/settings", tags=["S
 app.include_router(sync_router, prefix=f"{TENANT_PREFIX}/sync", tags=["Sync"])
 app.include_router(printers.router, prefix=f"{TENANT_PREFIX}/printers", tags=["Printers"])
 
+from routers.expenses import router as expenses_router
+app.include_router(expenses_router, prefix=f"{TENANT_PREFIX}/expenses", tags=["Expenses"])
+
 from routers.cross_transfer import router as cross_transfer_router
 app.include_router(cross_transfer_router, prefix=f"{TENANT_PREFIX}/partners", tags=["Partners & Cross-Transfer"])
+
+# ==================== PUBLIC SHOP ROUTES (no auth) ====================
+from routers.shop import router as shop_router
+app.include_router(shop_router, prefix="/api/v1/shop", tags=["Public Shop"])
 
 
 if __name__ == "__main__":

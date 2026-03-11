@@ -604,7 +604,7 @@ class StockTransferService(TenantServiceBase):
             )
 
             stock = self.stock_service.get_stock(item.product_id, transfer.from_warehouse_id)
-            unit_cost = stock.average_cost if stock else Decimal("0")
+            unit_cost = stock.average_cost if stock and stock.average_cost else Decimal("0")
 
             self.stock_service.remove_stock(
                 product_id=item.product_id,

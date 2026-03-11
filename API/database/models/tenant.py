@@ -6,11 +6,27 @@ Each tenant represents a separate company using the ERP system.
 from enum import Enum as PyEnum
 from sqlalchemy import (
     Column, String, Integer, Boolean, Text, Numeric,
-    DateTime, JSON, Index, CheckConstraint
+    DateTime, JSON, Index, CheckConstraint, ForeignKey
 )
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
+
+
+class ShopCategoryModel(BaseModel):
+    """Global shop categories (managed by super admin). E.g. Qurilish, Oziq-ovqat, Kiyim."""
+    
+    __tablename__ = 'shop_categories'
+    
+    name = Column(String(200), nullable=False, unique=True)
+    icon = Column(String(10), nullable=True)  # Emoji icon
+    description = Column(Text, nullable=True)
+    sort_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    
+    __table_args__ = (
+        Index('ix_shop_categories_active', 'is_active'),
+    )
 
 
 class SubscriptionPlan(PyEnum):
@@ -90,6 +106,16 @@ class Tenant(BaseModel):
     
     # Status
     is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Location
+    latitude = Column(Numeric(10, 7), nullable=True)
+    longitude = Column(Numeric(10, 7), nullable=True)
+    region = Column(String(100), nullable=True)  # Viloyat
+    district = Column(String(100), nullable=True)  # Tuman
+    
+    # Shop category
+    shop_category_id = Column(Integer, ForeignKey('shop_categories.id'), nullable=True)
+    shop_category = relationship("ShopCategoryModel", backref="tenants")
     
     # Metadata
     notes = Column(Text, nullable=True)  # Super admin uchun ichki eslatmalar

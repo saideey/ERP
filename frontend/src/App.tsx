@@ -14,6 +14,7 @@ import ProductsPage from '@/pages/Products'
 import CustomersPage from '@/pages/Customers'
 import WarehousePage from '@/pages/Warehouse'
 import ReportsPage from '@/pages/Reports'
+import ExpensesPage from '@/pages/Expenses'
 import SettingsPage from '@/pages/Settings'
 import UsersPage from '@/pages/Users'
 import PartnersPage from '@/pages/Partners'
@@ -26,6 +27,8 @@ import TenantsPage from '@/pages/super/Tenants'
 import TelegramManagement from '@/pages/super/TelegramManagement'
 import BillingPage from '@/pages/super/Billing'
 import SecuritySettings from '@/pages/super/SecuritySettings'
+import ShopPage from '@/pages/shop/ShopPage'
+import MarketplacePage from '@/pages/shop/MarketplacePage'
 
 /**
  * Tenant Protected Route with real-time payment status polling.
@@ -158,6 +161,10 @@ function App() {
         <Route path="*" element={<Navigate to="/s-panel/dashboard" replace />} />
       </Route>
       
+      {/* ==================== PUBLIC SHOP (no auth) ==================== */}
+      <Route path="/shop" element={<MarketplacePage />} />
+      <Route path="/shop/:tenantSlug" element={<ShopPage />} />
+
       {/* ==================== TENANT ROUTES ==================== */}
       <Route path="/:tenantSlug/login" element={<LoginPage />} />
       
@@ -176,12 +183,13 @@ function App() {
         <Route path="customers" element={<CustomersPage />} />
         <Route path="warehouse" element={<WarehousePage />} />
         <Route path="partners" element={<PartnersPage />} />
+        <Route path="expenses" element={<ExpensesPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="users" element={<UsersPage />} />
       </Route>
       
-      <Route path="/" element={<Navigate to="/s-panel/access" replace />} />
+      <Route path="/" element={<Navigate to="/shop" replace />} />
       
       <Route path="*" element={
         <div className="min-h-screen flex items-center justify-center bg-gray-100">

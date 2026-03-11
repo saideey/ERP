@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm, useWatch } from 'react-hook-form'
 import { 
   Search, Plus, Edit2, Trash2, Package, Ruler, Link2,
@@ -45,7 +45,6 @@ export default function ProductsPage() {
   const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
-  const [page, setPage] = useState(1)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showUOMDialog, setShowUOMDialog] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
@@ -75,15 +74,52 @@ export default function ProductsPage() {
   }, [watchedColor])
 
   // Fetch products
-  const { data: productsData, isLoading } = useQuery({
-    queryKey: ['products', searchQuery, selectedCategory, page],
-    queryFn: () => productsService.getProducts({
+  // Pending image for new product (upload after create)
+  const [pendingImage, setPendingImage] = useState<File | null>(null)
+  const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null)
+
+  // Infinite scroll ref
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  const PER_PAGE = 30
+
+  // Infinite query for products
+  const {
+    data: productsPages,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['products', searchQuery, selectedCategory],
+    queryFn: ({ pageParam = 1 }) => productsService.getProducts({
       q: searchQuery || undefined,
       category_id: selectedCategory || undefined,
-      page,
-      per_page: 20,
+      page: pageParam,
+      per_page: PER_PAGE,
     }),
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((sum, p) => sum + (p.data?.length || 0), 0)
+      return loaded < lastPage.total ? allPages.length + 1 : undefined
+    },
+    initialPageParam: 1,
   })
+
+  // Flatten all pages into one array
+  const allProducts = productsPages?.pages?.flatMap(p => p.data || []) || []
+  const totalProducts = productsPages?.pages?.[0]?.total || 0
+
+  // Intersection Observer for auto-load
+  useEffect(() => {
+    const el = loadMoreRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage() },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -118,14 +154,24 @@ export default function ProductsPage() {
         barcode: data.barcode,
         category_id: data.category_id,
         base_uom_id: data.base_uom_id,
-        cost_price: 0, // Kelish narxi omborga kirim qilganda aniqlanadi
-        sale_price: data.sale_price,  // UZS da sotish narxi
-        vip_price: data.vip_price || null,  // UZS da VIP narx
+        cost_price: 0,
+        sale_price: data.sale_price,
+        vip_price: data.vip_price || null,
         color: data.color,
         is_favorite: data.is_favorite || false,
         min_stock_level: data.min_stock_level || 0,
         uom_conversions: []
       })
+      // Upload pending image if any
+      if (pendingImage && response.data?.id) {
+        const form = new FormData()
+        form.append('file', pendingImage)
+        try {
+          await api.post(`/products/${response.data.id}/image`, form, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+        } catch { /* ignore image error */ }
+      }
       return response.data
     },
     onSuccess: () => {
@@ -135,6 +181,8 @@ export default function ProductsPage() {
       reset()
       setSalePriceDisplay('')
       setVipPriceDisplay('')
+      setPendingImage(null)
+      setPendingImagePreview(null)
     },
     onError: (error: any) => {
       const detail = error.response?.data?.detail
@@ -437,10 +485,10 @@ export default function ProductsPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
-          ) : productsData?.data && productsData.data.length > 0 ? (
+          ) : allProducts.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 sticky top-0 z-10">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-semibold">{t('product')}</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">{t('units')}</th>
@@ -451,15 +499,19 @@ export default function ProductsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {productsData.data.map((product: Product) => (
+                  {allProducts.map((product: Product) => (
                     <tr key={product.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="flex items-start gap-2">
-                          {product.color && (
+                          {product.image_url ? (
+                            <img src={product.image_url} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0 mt-0.5" />
+                          ) : product.color ? (
                             <div
-                              className="w-3 h-3 rounded-full mt-1.5 shrink-0"
-                              style={{ backgroundColor: product.color }}
+                              className="w-8 h-8 rounded-lg shrink-0 mt-0.5"
+                              style={{ backgroundColor: product.color + '20', border: `2px solid ${product.color}` }}
                             />
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 shrink-0 mt-0.5 flex items-center justify-center text-xs text-gray-400">📦</div>
                           )}
                           <div>
                             <div className="flex items-center gap-1">
@@ -551,32 +603,20 @@ export default function ProductsPage() {
             </div>
           )}
 
-          {/* Pagination */}
-          {productsData && productsData.total > 20 && (
-            <div className="flex items-center justify-between p-4 border-t border-border">
-              <p className="text-sm text-text-secondary">
-                {t('totalItems')}: {productsData.total}
+          {/* Infinite scroll sentinel + info */}
+          <div className="p-4 border-t border-border">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-text-secondary">
+                {allProducts.length} / {totalProducts} {t('totalItems')}
               </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 1}
-                  onClick={() => setPage(p => p - 1)}
-                >
-                  {t('previous')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page * 20 >= productsData.total}
-                  onClick={() => setPage(p => p + 1)}
-                >
-                  {t('next')}
-                </Button>
-              </div>
+              {isFetchingNextPage && (
+                <div className="flex items-center gap-2 text-xs text-text-secondary">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Yuklanmoqda...
+                </div>
+              )}
             </div>
-          )}
+            <div ref={loadMoreRef} className="h-1" />
+          </div>
         </CardContent>
       </Card>
 
@@ -587,6 +627,8 @@ export default function ProductsPage() {
           setSalePriceDisplay('')
           setVipPriceDisplay('')
           setEditingProduct(null)
+          setPendingImage(null)
+          setPendingImagePreview(null)
           reset()
         }
       }}>
@@ -737,6 +779,77 @@ export default function ProductsPage() {
                   placeholder="#3B82F6"
                   className="flex-1 max-w-[200px]"
                 />
+              </div>
+            </div>
+
+            {/* Product Image */}
+            <div className="space-y-2">
+              <label className="font-medium">📸 Rasm</label>
+              <div className="flex items-center gap-3">
+                {editingProduct ? (
+                  /* Editing existing product — direct upload */
+                  <>
+                    {editingProduct.image_url ? (
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                        <img src={editingProduct.image_url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await api.delete(`/products/${editingProduct.id}/image`)
+                              setEditingProduct({ ...editingProduct, image_url: null } as any)
+                              queryClient.invalidateQueries({ queryKey: ['products'] })
+                            } catch {}
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center"
+                        >✕</button>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xl">📷</div>
+                    )}
+                    <label className="cursor-pointer px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium text-gray-600 transition">
+                      {editingProduct.image_url ? "O'zgartirish" : 'Yuklash'}
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        const form = new FormData()
+                        form.append('file', f)
+                        try {
+                          const { data } = await api.post(`/products/${editingProduct.id}/image`, form, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                          })
+                          setEditingProduct({ ...editingProduct, image_url: data.image_url } as any)
+                          queryClient.invalidateQueries({ queryKey: ['products'] })
+                        } catch { /* ignore */ }
+                      }} />
+                    </label>
+                  </>
+                ) : (
+                  /* New product — pending image (upload after create) */
+                  <>
+                    {pendingImagePreview ? (
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                        <img src={pendingImagePreview} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => { setPendingImage(null); setPendingImagePreview(null) }}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center"
+                        >✕</button>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xl">📷</div>
+                    )}
+                    <label className="cursor-pointer px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-medium text-gray-600 transition">
+                      {pendingImagePreview ? "O'zgartirish" : 'Yuklash'}
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        setPendingImage(f)
+                        setPendingImagePreview(URL.createObjectURL(f))
+                      }} />
+                    </label>
+                  </>
+                )}
               </div>
             </div>
 

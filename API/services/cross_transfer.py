@@ -455,6 +455,8 @@ class CrossTransferService:
                     name=sender_product.name,
                     article=sender_product.article,
                     barcode=sender_product.barcode,
+                    description=sender_product.description,
+                    image_url=sender_product.image_url,
                     base_uom_id=receiver_uom.id,
                     cost_price=item.sale_price,
                     sale_price=Decimal("0"),

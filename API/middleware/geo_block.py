@@ -32,6 +32,10 @@ class GeoBlockMiddleware(BaseHTTPMiddleware):
         if request.url.path in BYPASS_PATHS:
             return await call_next(request)
 
+        # Allow public shop API from anywhere
+        if request.url.path.startswith("/api/v1/shop/"):
+            return await call_next(request)
+
         ip = extract_client_ip(request)
 
         # Private IPs always pass

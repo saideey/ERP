@@ -695,6 +695,20 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Online Do'kon Settings */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-lg">🛒</div>
+              <div>
+                <h2 className="text-pos-lg font-bold">Online Do'kon</h2>
+                <p className="text-sm text-text-secondary">Aloqa ma'lumotlari</p>
+              </div>
+            </div>
+            <ShopContactsForm />
+          </CardContent>
+        </Card>
+
         {/* Printers Settings - Full Width */}
         <div className="lg:col-span-2">
           <PrintersSettings />
@@ -752,6 +766,53 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
+}
+
+function ShopContactsForm() {
+  const [data, setData] = useState({ telegram_username: '', whatsapp_number: '', working_hours: '', description: '' })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    api.get('/settings/shop-contacts').then(({ data }) => setData(data)).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      await api.put('/settings/shop-contacts', data)
+      toast.success('Saqlandi')
+    } catch { toast.error('Xatolik') }
+    finally { setSaving(false) }
+  }
+
+  if (loading) return <div className="text-center py-4 text-sm text-gray-400">Yuklanmoqda...</div>
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Telegram username</label>
+          <Input value={data.telegram_username} onChange={e => setData({ ...data, telegram_username: e.target.value })} placeholder="@dokon_admin" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">WhatsApp raqam</label>
+          <Input value={data.whatsapp_number} onChange={e => setData({ ...data, whatsapp_number: e.target.value })} placeholder="+998901234567" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Ish vaqti</label>
+          <Input value={data.working_hours} onChange={e => setData({ ...data, working_hours: e.target.value })} placeholder="09:00 — 18:00" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Tavsif</label>
+          <Input value={data.description} onChange={e => setData({ ...data, description: e.target.value })} placeholder="Qisqa tavsif" />
+        </div>
+      </div>
+      <Button size="sm" onClick={save} disabled={saving}>{saving ? 'Saqlanmoqda...' : 'Saqlash'}</Button>
     </div>
   )
 }

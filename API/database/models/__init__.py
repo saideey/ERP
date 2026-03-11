@@ -6,6 +6,7 @@ Export all models for easy importing.
 # Tenant (MUST be imported first - other models depend on it)
 from .tenant import (
     Tenant,
+    ShopCategoryModel,
     SubscriptionPlan,
     SubscriptionStatus,
 )
@@ -126,6 +127,8 @@ from .cross_transfer import (
 from .billing import TenantBilling
 
 from .login_log import SuperAdminLoginLog
+
+from .shop_analytics import ShopView, ShopLike
 
 
 __all__ = [

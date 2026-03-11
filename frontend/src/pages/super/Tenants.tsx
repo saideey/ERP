@@ -2,6 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { superApi } from '@/services/api'
 import type { Tenant } from '@/types'
 
+// Helper to safely extract error message from API responses (handles 422 validation arrays)
+function getErrMsg(err: any, fallback = 'Xatolik'): string {
+  const detail = err?.response?.data?.detail
+  if (Array.isArray(detail)) return detail.map((e: any) => e.msg || '').filter(Boolean).join(', ') || fallback
+  if (typeof detail === 'string') return detail
+  return fallback
+}
+
 interface TenantUser {
   id: number; username: string; first_name: string; last_name: string
   phone?: string; email?: string; role_name: string; role_type?: string
@@ -111,14 +119,14 @@ export default function TenantsPage() {
 
 // ==================== TENANT DETAIL ====================
 function TenantDetail({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => void }) {
-  const [tab, setTab] = useState<'settings' | 'features' | 'limits' | 'users' | 'ips'>('settings')
-  const tabLabels: Record<string, string> = { settings: 'Sozlamalar', features: 'Xususiyatlar', limits: 'Tarif & Limitlar', users: 'Xodimlar', ips: '🔒 IP cheklash' }
+  const [tab, setTab] = useState<'settings' | 'features' | 'limits' | 'users' | 'ips' | 'location'>('settings')
+  const tabLabels: Record<string, string> = { settings: 'Sozlamalar', features: 'Xususiyatlar', limits: 'Tarif & Limitlar', users: 'Xodimlar', ips: '🔒 IP cheklash', location: '📍 Joylashuv' }
 
   return (
     <div className="border-t border-gray-100">
       {/* Tabs */}
       <div className="flex border-b border-gray-100 px-5 overflow-x-auto">
-        {(['settings', 'features', 'limits', 'users', 'ips'] as const).map(t => (
+        {(['settings', 'features', 'limits', 'users', 'ips', 'location'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition whitespace-nowrap ${tab === t ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
             {tabLabels[t]}
@@ -129,11 +137,13 @@ function TenantDetail({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => vo
       {tab === 'settings' ? (
         <TenantSettings tenant={tenant} onUpdate={onUpdate} />
       ) : tab === 'features' ? (
-        <TenantFeatures tenantId={tenant.id} />
+        <TenantFeatures tenantId={tenant.id} tenantSlug={tenant.slug} />
       ) : tab === 'limits' ? (
         <TenantLimits tenant={tenant} onUpdate={onUpdate} />
       ) : tab === 'ips' ? (
         <TenantIPWhitelist tenantId={tenant.id} />
+      ) : tab === 'location' ? (
+        <TenantLocation tenantId={tenant.id} />
       ) : (
         <TenantUsers tenantId={tenant.id} />
       )}
@@ -142,7 +152,7 @@ function TenantDetail({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => vo
 }
 
 // ==================== FEATURES TAB ====================
-function TenantFeatures({ tenantId }: { tenantId: number }) {
+function TenantFeatures({ tenantId, tenantSlug }: { tenantId: number; tenantSlug: string }) {
   const [features, setFeatures] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -153,6 +163,8 @@ function TenantFeatures({ tenantId }: { tenantId: number }) {
     customers: { name: 'Mijozlar', desc: 'Mijozlar bazasi va qarz nazorati', icon: '👥' },
     daily_report: { name: 'Kunlik hisobot', desc: 'Telegram orqali kunlik hisobot yuborish', icon: '📊' },
     reports: { name: 'Hisobotlar', desc: "Sotuv, ombor va moliyaviy hisobotlar", icon: '📈' },
+    online_shop: { name: 'Online do\'kon', desc: "Mijozlar tovarlar va narxlarni online ko'ra oladi", icon: '🛒' },
+    expenses: { name: 'Chiqimlar', desc: "Chiqimlar va sof foyda hisoboti", icon: '💰' },
   }
 
   useEffect(() => {
@@ -177,7 +189,7 @@ function TenantFeatures({ tenantId }: { tenantId: number }) {
       setMsg({ ok: true, text: `${featureLabels[key]?.name || key} ${value ? 'yoqildi' : "o'chirildi"} ✓` })
     } catch (err: any) {
       setFeatures({ ...features, [key]: !value }) // rollback
-      setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' })
+      setMsg({ ok: false, text: getErrMsg(err) })
     }
     finally { setSaving(false) }
   }
@@ -212,6 +224,11 @@ function TenantFeatures({ tenantId }: { tenantId: number }) {
               >
                 <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${enabled ? 'left-6' : 'left-0.5'}`} />
               </button>
+              {key === 'online_shop' && enabled && (
+                <a href={`/shop/${tenantSlug}`} target="_blank" className="ml-2 text-[10px] px-2 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 whitespace-nowrap">
+                  🔗 Ochish
+                </a>
+              )}
             </div>
           )
         })}
@@ -246,7 +263,7 @@ function TenantIPWhitelist({ tenantId }: { tenantId: number }) {
       setIps(updated)
       setMsg({ ok: true, text: 'Saqlandi ✓' })
     } catch (err: any) {
-      setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' })
+      setMsg({ ok: false, text: getErrMsg(err) })
     } finally { setSaving(false) }
   }
 
@@ -339,6 +356,129 @@ function TenantIPWhitelist({ tenantId }: { tenantId: number }) {
   )
 }
 
+// ==================== LOCATION TAB ====================
+function TenantLocation({ tenantId }: { tenantId: number }) {
+  const [data, setData] = useState({ latitude: null as number | null, longitude: null as number | null, region: '', district: '', shop_category_id: null as number | null })
+  const [categories, setCategories] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
+  const regions = [
+    'Toshkent shahri', 'Toshkent viloyati', 'Andijon', 'Buxoro', 'Farg\'ona',
+    'Jizzax', 'Xorazm', 'Namangan', 'Navoiy', 'Qashqadaryo',
+    'Qoraqalpog\'iston', 'Samarqand', 'Sirdaryo', 'Surxondaryo'
+  ]
+
+  useEffect(() => {
+    Promise.all([
+      superApi.get(`/tenants/${tenantId}/location`),
+      superApi.get('/tenants/shop-categories'),
+    ]).then(([loc, cats]) => {
+      setData(loc.data)
+      setCategories(cats.data.categories || [])
+    }).catch(() => {}).finally(() => setLoading(false))
+  }, [tenantId])
+
+  const save = async () => {
+    setSaving(true); setMsg(null)
+    try {
+      await superApi.put(`/tenants/${tenantId}/location`, data)
+      setMsg({ ok: true, text: 'Saqlandi ✓' })
+    } catch (err: any) { setMsg({ ok: false, text: getErrMsg(err) }) }
+    finally { setSaving(false) }
+  }
+
+  // Handle map click from iframe message
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === 'map-click') {
+        setData(d => ({ ...d, latitude: e.data.lat, longitude: e.data.lng }))
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [])
+
+  if (loading) return <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+
+  return (
+    <div className="p-5 space-y-4">
+      {msg && <div className={`px-3 py-2 rounded-lg text-xs ${msg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>{msg.text}</div>}
+
+      {/* Shop category */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-gray-500">Do'kon turi</label>
+        <div className="flex gap-2">
+          <select value={data.shop_category_id || ''} onChange={e => setData({ ...data, shop_category_id: e.target.value ? parseInt(e.target.value) : null })}
+            className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none">
+            <option value="">Tanlanmagan</option>
+            {categories.map((c: any) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+          </select>
+          <button onClick={() => {
+            const name = prompt('Yangi kategoriya nomi:')
+            if (name) superApi.post('/tenants/shop-categories', { name, icon: '🏪' }).then(({ data: d }) => {
+              setCategories([...categories, { id: d.id, name: d.name, icon: '🏪' }])
+              setData(prev => ({ ...prev, shop_category_id: d.id }))
+            }).catch(() => {})
+          }} className="px-3 py-2 bg-gray-100 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-200">+ Yangi</button>
+        </div>
+      </div>
+
+      {/* Region / District */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-gray-500">Viloyat</label>
+          <select value={data.region || ''} onChange={e => setData({ ...data, region: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+            <option value="">Tanlang</option>
+            {regions.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-gray-500">Tuman</label>
+          <input value={data.district || ''} onChange={e => setData({ ...data, district: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none" placeholder="Masalan: Xiva" />
+        </div>
+      </div>
+
+      {/* Coordinates */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-gray-500">Kenglik (Latitude)</label>
+          <input type="number" step="any" value={data.latitude || ''} onChange={e => setData({ ...data, latitude: parseFloat(e.target.value) || null })}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none font-mono" placeholder="41.3775" />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-gray-500">Uzunlik (Longitude)</label>
+          <input type="number" step="any" value={data.longitude || ''} onChange={e => setData({ ...data, longitude: parseFloat(e.target.value) || null })}
+            className="w-full px-3 py-2 border rounded-lg text-sm outline-none font-mono" placeholder="60.6367" />
+        </div>
+      </div>
+
+      {/* Map */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-gray-500">📍 Kartada belgilang (bosing)</label>
+        <div className="rounded-xl overflow-hidden border" style={{ height: '300px' }}>
+          <iframe
+            title="map"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${(data.longitude || 60.6)-0.02}%2C${(data.latitude || 41.3)-0.01}%2C${(data.longitude || 60.6)+0.02}%2C${(data.latitude || 41.3)+0.01}&layer=mapnik${data.latitude ? `&marker=${data.latitude}%2C${data.longitude}` : ''}`}
+          />
+        </div>
+        <p className="text-[10px] text-gray-400">Aniq koordinatalarni Google Maps dan oling: sichqonchaning o'ng tugmasi → "What's here?"</p>
+      </div>
+
+      <button onClick={save} disabled={saving}
+        className="w-full py-2.5 bg-orange-500 text-white rounded-lg text-sm font-semibold disabled:opacity-50 hover:bg-orange-600 transition">
+        {saving ? 'Saqlanmoqda...' : '💾 Saqlash'}
+      </button>
+    </div>
+  )
+}
+
 // ==================== SETTINGS TAB ====================
 function TenantSettings({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null)
@@ -352,7 +492,7 @@ function TenantSettings({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => 
     setUploading(true); setMsg(null)
     const form = new FormData(); form.append('file', file)
     try { await superApi.post(`/tenants/${tenant.id}/logo`, form, { headers: { 'Content-Type': 'multipart/form-data' } }); setMsg({ ok: true, text: 'Logo yuklandi ✓' }); onUpdate() }
-    catch (err: any) { setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' }) }
+    catch (err: any) { setMsg({ ok: false, text: getErrMsg(err) }) }
     finally { setUploading(false) }
   }
 
@@ -448,7 +588,7 @@ function TenantLimits({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => vo
         })
       }
       onUpdate()
-    } catch (err: any) { setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' }) }
+    } catch (err: any) { setMsg({ ok: false, text: getErrMsg(err) }) }
     finally { setSaving(false) }
   }
 
@@ -458,7 +598,7 @@ function TenantLimits({ tenant, onUpdate }: { tenant: Tenant; onUpdate: () => vo
       await superApi.put(`/tenants/${tenant.id}`, limits)
       setMsg({ ok: true, text: 'Limitlar saqlandi ✓' })
       onUpdate()
-    } catch (err: any) { setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' }) }
+    } catch (err: any) { setMsg({ ok: false, text: getErrMsg(err) }) }
     finally { setSaving(false) }
   }
 
@@ -594,7 +734,7 @@ function TenantUsers({ tenantId }: { tenantId: number }) {
       setMsg({ ok: true, text: 'Saqlandi ✓' })
       setEditId(null)
       load()
-    } catch (err: any) { setMsg({ ok: false, text: err.response?.data?.detail || 'Xatolik' }) }
+    } catch (err: any) { setMsg({ ok: false, text: getErrMsg(err) }) }
     finally { setSaving(false) }
   }
 
@@ -758,7 +898,9 @@ function CreateTenantModal({ onClose, onCreated }: { onClose: () => void; onCrea
         await superApi.post(`/tenants/${data.id}/logo`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
       onCreated()
-    } catch (err: any) { setError(err.response?.data?.detail || 'Xatolik yuz berdi') }
+    } catch (err: any) {
+      setError(getErrMsg(err, 'Xatolik yuz berdi'))
+    }
     finally { setLoading(false) }
   }
 

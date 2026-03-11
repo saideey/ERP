@@ -131,7 +131,7 @@ class PDFReportGenerator:
         
         # Company header
         elements.append(Paragraph("<b>METALL BASA</b>", self.styles['CompanyName']))
-        elements.append(Paragraph("Qurilish mollari do'koni", self.styles['ReceiptText']))
+        elements.append(Paragraph("X ERP SYSTEM", self.styles['ReceiptText']))
         elements.append(Paragraph("Tel: +998 90 123 45 67", self.styles['ReceiptText']))
         elements.append(Spacer(1, 5*mm))
         

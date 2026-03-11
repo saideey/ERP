@@ -4,37 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2acd1612-d026-4ad3-84e5-9cec1bf63916" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/API/alembic/versions/006_shop_analytics.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/alembic/versions/007_shop_locations.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/database/models/shop_analytics.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/routers/expenses.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/API/routers/shop.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/Expenses.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/shop/MarketplacePage.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/shop/ShopMapView.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/shop/ShopPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/database/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/database/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/database/models/tenant.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/database/models/tenant.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/middleware/geo_block.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/middleware/geo_block.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/routers/products.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/routers/products.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/routers/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/routers/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/tenants.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/routers/super_admin/tenants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/schemas/tenant.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/schemas/tenant.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/services/cross_transfer.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/services/cross_transfer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/services/reports/pdf_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/services/reports/pdf_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/services/sale.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/services/sale.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/services/warehouse.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/services/warehouse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/lib/translations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/lib/translations.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Products.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Products.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/Tenants.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/super/Tenants.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="2acd1612-d026-4ad3-84e5-9cec1bf63916" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

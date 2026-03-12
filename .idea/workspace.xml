@@ -5,20 +5,192 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2acd1612-d026-4ad3-84e5-9cec1bf63916" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/MainLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/MainLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Customers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Customers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Expenses.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Expenses.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PrintersSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/PrintersSettings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Products.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Products.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Reports.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Reports.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Sales.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Sales.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Warehouse.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Warehouse.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/script.py.mako" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/001_initial_saas.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/002_cross_tenant.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/003_partner_payments.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/004_tenant_billings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/005_super_security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/006_shop_analytics.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/alembic/versions/007_shop_locations.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/dependencies.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/ip_security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/subscription_plans.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/core/tenant.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/connection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/billing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/cross_transfer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/customer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/finance.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/login_log.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/printer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/product.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/sale.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/shop_analytics.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/super_admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/supplier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/tenant.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/user.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/models/warehouse.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/database/seed.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/middleware/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/middleware/geo_block.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/auth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/cross_transfer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/customers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/expenses.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/printers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/products.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/reports.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/sales.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/shop.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/sms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/auth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/billing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/dashboard.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/telegram.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/tenants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/super_admin/users.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/sync.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/users.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/routers/warehouse.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/auth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/customer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/product.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/sale.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/tenant.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/user.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/schemas/warehouse.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/scripts/start.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/auth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/billing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/cross_transfer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/customer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/daily_report_scheduler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/product.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/reports/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/reports/excel_generator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/reports/pdf_generator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/sale.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/sms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/telegram_notifier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/tenant.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/tenant_limits.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/user.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/services/warehouse.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/utils/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/utils/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/utils/print_helper.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup/backup_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup/entrypoint.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/docker-entrypoint-wrapper.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/pg_hba.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/sync-password.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fix_db_password.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/nginx.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/postcss.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/favicon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/LanguageSwitcher.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/MainLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/NotificationBell.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/badge.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/card.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/dialog.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/input.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/contexts/LanguageContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useSessionTimeout.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/lib/translations.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/lib/utils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Customers.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Expenses.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Login.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/POS.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Partners.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/PrintersSettings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Products.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Reports.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Sales.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Users.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Warehouse.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/shop/MarketplacePage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/shop/ShopMapView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/shop/ShopPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/Billing.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/SecuritySettings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/SuperDashboard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/SuperLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/SuperLogin.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/TelegramManagement.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/super/Tenants.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/customersService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/productsService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/salesService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/usersService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/warehouseService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/authStore.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/posStore.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/types/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/vite-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tailwind.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.node.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reset_password.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/reset_admin_password.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/excel_generator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/http_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/notification_service.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/telegram_bot/requirements.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

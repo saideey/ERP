@@ -12,6 +12,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
+    allowedHosts: ['x-lab.uz', '.x-lab.uz', 'localhost'],
     proxy: {
       '/api': {
         target: 'http://api:8000',

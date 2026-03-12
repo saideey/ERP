@@ -136,7 +136,7 @@ export default function ReportsPage() {
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">
-        <h1 className="text-xl lg:text-pos-xl font-bold">{t('reports')}</h1>
+        <h1 className="text-xl lg:text-sm xl:text-lg font-bold truncate">{t('reports')}</h1>
         
         {/* Date Filters */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:gap-4">
@@ -233,7 +233,7 @@ export default function ReportsPage() {
                     <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-xs lg:text-sm text-text-secondary">{t('totalRevenue')}</p>
-                        <p className="text-sm lg:text-pos-xl font-bold text-primary truncate">
+                        <p className="text-xs xl:text-sm font-bold text-primary truncate">
                           {formatMoney(profitData.summary.total_revenue)}
                         </p>
                       </div>
@@ -247,7 +247,7 @@ export default function ReportsPage() {
                     <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-xs lg:text-sm text-text-secondary">{t('totalCostPrice')}</p>
-                        <p className="text-sm lg:text-pos-xl font-bold text-warning truncate">
+                        <p className="text-xs xl:text-sm font-bold text-warning truncate">
                           {formatMoney(profitData.summary.total_cost)}
                         </p>
                       </div>
@@ -262,7 +262,7 @@ export default function ReportsPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs lg:text-sm text-text-secondary">{t('profit')}</p>
                         <p className={cn(
-                          "text-sm lg:text-pos-xl font-bold truncate",
+                          "text-xs xl:text-sm font-bold truncate",
                           profitData.summary.total_profit >= 0 ? "text-success" : "text-danger"
                         )}>
                           {formatMoney(profitData.summary.total_profit)}
@@ -279,7 +279,7 @@ export default function ReportsPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs lg:text-sm text-text-secondary">{t('profitPercent')}</p>
                         <p className={cn(
-                          "text-sm lg:text-pos-xl font-bold",
+                          "text-xs lg:text-lg font-bold",
                           profitData.summary.profit_margin >= 0 ? "text-success" : "text-danger"
                         )}>
                           {profitData.summary.profit_margin.toFixed(1)}%
@@ -295,7 +295,7 @@ export default function ReportsPage() {
               <Card>
                 <CardContent className="p-0">
                   <div className="p-3 lg:p-4 border-b border-border">
-                    <h3 className="text-base lg:text-pos-lg font-bold">{t('profitByProducts')}</h3>
+                    <h3 className="text-base lg:text-xs xl:text-sm font-bold truncate">{t('profitByProducts')}</h3>
                     <p className="text-xs lg:text-sm text-text-secondary">
                       {profitData.summary.products_count} {t('product')}
                     </p>
@@ -370,14 +370,14 @@ export default function ReportsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('salesCount')}</p>
-                    <p className="text-pos-xl font-bold">{salesData.summary.total_sales}</p>
+                    <p className="text-sm xl:text-lg font-bold truncate">{salesData.summary.total_sales}</p>
                   </CardContent>
                 </Card>
                 
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('totalSum')}</p>
-                    <p className="text-pos-lg font-bold text-primary">
+                    <p className="text-xs xl:text-sm font-bold text-primary truncate">
                       {formatMoney(salesData.summary.total_amount)}
                     </p>
                   </CardContent>
@@ -386,7 +386,7 @@ export default function ReportsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('discounts')}</p>
-                    <p className="text-pos-lg font-bold text-warning">
+                    <p className="text-xs xl:text-sm font-bold text-warning truncate">
                       {formatMoney(salesData.summary.total_discount)}
                     </p>
                   </CardContent>
@@ -395,7 +395,7 @@ export default function ReportsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('paid')}</p>
-                    <p className="text-pos-lg font-bold text-success">
+                    <p className="text-xs xl:text-sm font-bold text-success truncate">
                       {formatMoney(salesData.summary.total_paid)}
                     </p>
                   </CardContent>
@@ -404,7 +404,7 @@ export default function ReportsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('debt')}</p>
-                    <p className="text-pos-lg font-bold text-danger">
+                    <p className="text-xs xl:text-sm font-bold text-danger truncate">
                       {formatMoney(salesData.summary.total_debt)}
                     </p>
                   </CardContent>
@@ -413,7 +413,7 @@ export default function ReportsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <p className="text-sm text-text-secondary">{t('averageCheck')}</p>
-                    <p className="text-pos-lg font-bold">
+                    <p className="text-xs xl:text-sm font-bold truncate">
                       {formatMoney(salesData.summary.average_sale)}
                     </p>
                   </CardContent>
@@ -423,12 +423,12 @@ export default function ReportsPage() {
               {/* Payment Breakdown */}
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-pos-lg font-bold mb-4">{t('paymentType')}</h3>
+                  <h3 className="text-base font-bold mb-4">{t('paymentType')}</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(salesData.payment_breakdown).map(([type, amount]: [string, any]) => (
                       <div key={type} className="p-4 bg-gray-50 rounded-pos">
                         <p className="text-sm text-text-secondary capitalize">{type}</p>
-                        <p className="text-pos-lg font-bold">{formatMoney(amount)}</p>
+                        <p className="text-xs xl:text-sm font-bold truncate">{formatMoney(amount)}</p>
                       </div>
                     ))}
                   </div>
@@ -904,7 +904,7 @@ export default function ReportsPage() {
                   <DollarSign className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-pos-lg">{t('salesReportTitle')}</h3>
+                  <h3 className="font-bold text-lg">{t('salesReportTitle')}</h3>
                   <p className="text-sm text-text-secondary">{t('forSelectedPeriod')}</p>
                 </div>
               </div>
@@ -937,7 +937,7 @@ export default function ReportsPage() {
                   <Package className="w-8 h-8 text-warning" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-pos-lg">{t('stockReportTitle')}</h3>
+                  <h3 className="font-bold text-lg">{t('stockReportTitle')}</h3>
                   <p className="text-sm text-text-secondary">{t('currentStatus')}</p>
                 </div>
               </div>
@@ -970,7 +970,7 @@ export default function ReportsPage() {
                   <Users className="w-8 h-8 text-danger" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-pos-lg">{t('debtorsReportTitle')}</h3>
+                  <h3 className="font-bold text-lg">{t('debtorsReportTitle')}</h3>
                   <p className="text-sm text-text-secondary">{t('currentDebts')}</p>
                 </div>
               </div>
@@ -1003,7 +1003,7 @@ export default function ReportsPage() {
                   <Calendar className="w-8 h-8 text-success" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-pos-lg">{t('dailyReportTitle')}</h3>
+                  <h3 className="font-bold text-lg">{t('dailyReportTitle')}</h3>
                   <p className="text-sm text-text-secondary">{t('forToday')}</p>
                 </div>
               </div>
@@ -1036,7 +1036,7 @@ export default function ReportsPage() {
                   <FileSpreadsheet className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-pos-lg">{t('priceListTitle')}</h3>
+                  <h3 className="font-bold text-lg">{t('priceListTitle')}</h3>
                   <p className="text-sm text-text-secondary">{t('allProducts')}</p>
                 </div>
               </div>

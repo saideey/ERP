@@ -396,7 +396,7 @@ export default function ProductsPage() {
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-4">
-        <h1 className="text-xl lg:text-pos-xl font-bold">{t('products')}</h1>
+        <h1 className="text-xl lg:text-2xl font-bold">{t('products')}</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowCategoryDialog(true)} className="flex-1 sm:flex-none text-sm lg:text-base">
             <FolderPlus className="w-4 h-4 lg:w-5 lg:h-5 mr-1 lg:mr-2" />
@@ -632,7 +632,7 @@ export default function ProductsPage() {
           reset()
         }
       }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProduct ? t('editProduct') : t('newProduct')}</DialogTitle>
             <DialogDescription>{t('enterProductDetails')}</DialogDescription>
@@ -871,7 +871,7 @@ export default function ProductsPage() {
 
       {/* UOM Conversions Dialog */}
       <Dialog open={showUOMDialog} onOpenChange={setShowUOMDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('configureUnits')}</DialogTitle>
             <DialogDescription>

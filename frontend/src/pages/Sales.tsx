@@ -352,7 +352,7 @@ export default function SalesPage() {
             </div>
           ) : filteredSales.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[800px]">
                 <thead className="bg-gray-50 border-b border-border">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-medium">№</th>

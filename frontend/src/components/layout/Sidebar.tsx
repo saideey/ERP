@@ -52,9 +52,10 @@ const navItems: NavItem[] = [
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  collapsed?: boolean
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, collapsed = false }: SidebarProps) {
   const location = useLocation()
   const { user, logout, hasPermission, tenantSlug } = useAuthStore()
   const basePath = `/${tenantSlug}`
@@ -140,7 +141,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         className={cn(
           'fixed left-0 top-0 h-screen w-72 bg-surface border-r border-border flex flex-col z-50',
           'transition-transform duration-300 ease-in-out',
-          'lg:translate-x-0',
+          collapsed ? '-translate-x-full' : 'lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >

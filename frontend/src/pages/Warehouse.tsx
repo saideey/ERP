@@ -425,7 +425,7 @@ export default function WarehousePage() {
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-4">
-        <h1 className="text-xl lg:text-pos-xl font-bold">{t('warehouse')}</h1>
+        <h1 className="text-xl lg:text-2xl font-bold">{t('warehouse')}</h1>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="flex items-center justify-center gap-2 px-3 lg:px-4 py-2 bg-primary/10 rounded-xl text-sm lg:text-base">
             <DollarSign className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
@@ -1123,22 +1123,22 @@ export default function WarehousePage() {
                   <>
                     <div>
                       <p className="text-sm text-text-secondary">{t('totalUsd')}:</p>
-                      <p className="text-pos-xl font-bold text-primary">${formatNumber(incomeTotalUsd, 2)}</p>
+                      <p className="text-lg font-bold text-primary truncate">${formatNumber(incomeTotalUsd, 2)}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-text-secondary">≈ {t('inUzs')}:</p>
-                      <p className="text-pos-lg font-bold text-success">{formatMoney(incomeTotalUzs)}</p>
+                      <p className="text-sm font-bold text-success truncate">{formatMoney(incomeTotalUzs)}</p>
                     </div>
                   </>
                 ) : (
                   <>
                     <div>
                       <p className="text-sm text-text-secondary">{t('totalUzs')}:</p>
-                      <p className="text-pos-xl font-bold text-success">{formatMoney(incomeTotalUzs)}</p>
+                      <p className="text-lg font-bold text-success truncate">{formatMoney(incomeTotalUzs)}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-text-secondary">≈ {t('inUsd')}:</p>
-                      <p className="text-pos-lg font-bold text-primary">${formatNumber(incomeTotalUsd, 2)}</p>
+                      <p className="text-sm font-bold text-primary truncate">${formatNumber(incomeTotalUsd, 2)}</p>
                     </div>
                   </>
                 )}

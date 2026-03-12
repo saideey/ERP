@@ -233,7 +233,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex items-center gap-2 lg:gap-3">
         <SettingsIcon className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
-        <h1 className="text-xl lg:text-pos-xl font-bold">{t('settings')}</h1>
+        <h1 className="text-xl lg:text-2xl font-bold">{t('settings')}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
@@ -245,7 +245,7 @@ export default function SettingsPage() {
                 <DollarSign className="w-6 h-6 lg:w-8 lg:h-8 text-success" />
               </div>
               <div>
-                <h2 className="text-base lg:text-pos-lg font-bold">{t('usdRate')}</h2>
+                <h2 className="text-base lg:text-sm font-bold truncate">{t('usdRate')}</h2>
                 <p className="text-xs lg:text-sm text-text-secondary">1 USD = ? UZS</p>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
                 {/* Current Rate Display */}
                 <div className="bg-gray-50 p-3 lg:p-4 rounded-xl">
                   <p className="text-xs lg:text-sm text-text-secondary mb-1">{t('usdRate')}:</p>
-                  <p className="text-lg lg:text-pos-xl font-bold text-success">
+                  <p className="text-lg lg:text-2xl font-bold text-success">
                     1 $ = {formatNumber(exchangeRateData?.usd_rate || 12800)} UZS
                   </p>
                   {exchangeRateData?.updated_at && (
@@ -277,7 +277,7 @@ export default function SettingsPage() {
                     value={usdRate}
                     onChange={(e) => setUsdRate(e.target.value)}
                     placeholder="12800"
-                    className="text-base lg:text-pos-lg font-bold"
+                    className="text-base lg:text-lg font-bold"
                   />
                 </div>
 
@@ -328,7 +328,7 @@ export default function SettingsPage() {
                 <SettingsIcon className="w-6 h-6 lg:w-8 lg:h-8 text-primary" />
               </div>
               <div>
-                <h2 className="text-base lg:text-pos-lg font-bold">{t('companyPhone')}</h2>
+                <h2 className="text-base lg:text-sm font-bold truncate">{t('companyPhone')}</h2>
                 <p className="text-xs lg:text-sm text-text-secondary">{t('receiptSettings')}</p>
               </div>
             </div>
@@ -386,7 +386,7 @@ export default function SettingsPage() {
                 <Globe className="w-6 h-6 lg:w-8 lg:h-8 text-purple-500" />
               </div>
               <div>
-                <h2 className="text-base lg:text-pos-lg font-bold">{t('language')}</h2>
+                <h2 className="text-base lg:text-sm font-bold truncate">{t('language')}</h2>
                 <p className="text-xs lg:text-sm text-text-secondary">{t('selectLanguage')}</p>
               </div>
             </div>
@@ -414,7 +414,7 @@ export default function SettingsPage() {
                 <Send className="w-8 h-8 text-blue-500" />
               </div>
               <div>
-                <h2 className="text-pos-lg font-bold">{t('telegramBot')}</h2>
+                <h2 className="text-sm font-bold truncate">{t('telegramBot')}</h2>
                 <p className="text-sm text-text-secondary">{t('telegramNotifications')}</p>
               </div>
             </div>
@@ -518,7 +518,7 @@ export default function SettingsPage() {
                 <MessageSquare className="w-6 h-6 lg:w-8 lg:h-8 text-green-600" />
               </div>
               <div>
-                <h2 className="text-base lg:text-pos-lg font-bold">{t('dailyReport')}</h2>
+                <h2 className="text-base lg:text-sm font-bold truncate">{t('dailyReport')}</h2>
                 <p className="text-xs lg:text-sm text-text-secondary">{t('telegramGroupReport')}</p>
               </div>
             </div>
@@ -672,7 +672,7 @@ export default function SettingsPage() {
         {/* System Info Card */}
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-pos-lg font-bold mb-4">{t('generalSettings')}</h2>
+            <h2 className="text-lg font-bold mb-4">{t('generalSettings')}</h2>
 
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-border">
@@ -701,7 +701,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-lg">🛒</div>
               <div>
-                <h2 className="text-pos-lg font-bold">Online Do'kon</h2>
+                <h2 className="text-sm font-bold truncate">Online Do'kon</h2>
                 <p className="text-sm text-text-secondary">Aloqa ma'lumotlari</p>
               </div>
             </div>
@@ -717,7 +717,7 @@ export default function SettingsPage() {
         {/* Sales Settings Card */}
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-pos-lg font-bold mb-4">{t('salesSettings')}</h2>
+            <h2 className="text-lg font-bold mb-4">{t('salesSettings')}</h2>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">

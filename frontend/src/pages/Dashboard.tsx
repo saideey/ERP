@@ -93,7 +93,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl lg:text-pos-xl font-bold">{getWelcome()}, {user?.first_name}!</h1>
+          <h1 className="text-xl lg:text-2xl font-bold">{getWelcome()}, {user?.first_name}!</h1>
           <p className="text-text-secondary text-sm lg:text-pos-base">
             {new Date().toLocaleDateString(getDateLocale(), { 
               weekday: 'long', 
@@ -124,7 +124,7 @@ export default function Dashboard() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-text-secondary text-xs lg:text-sm truncate">{stat.title}</p>
-                  <p className="text-base lg:text-pos-lg font-bold truncate">{stat.value}</p>
+                  <p className="text-base lg:text-lg font-bold truncate">{stat.value}</p>
                 </div>
               </div>
             </CardContent>

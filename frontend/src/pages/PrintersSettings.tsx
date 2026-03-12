@@ -272,7 +272,7 @@ export default function PrintersSettings() {
               <Printer className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold">Printerlar</h2>
+              <h2 className="text-sm font-bold truncate">Printerlar</h2>
               <p className="text-sm text-gray-500">Chek printerlarni boshqarish</p>
             </div>
           </div>

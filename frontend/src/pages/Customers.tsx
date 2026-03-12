@@ -818,7 +818,7 @@ export default function CustomersPage() {
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-4">
-        <h1 className="text-xl lg:text-pos-xl font-bold">{t('customers')}</h1>
+        <h1 className="text-xl lg:text-2xl font-bold">{t('customers')}</h1>
         <Button size="lg" onClick={() => setShowAddDialog(true)} className="w-full sm:w-auto">
           <Plus className="w-5 h-5 mr-2" />
           {t('addCustomer')}
@@ -834,7 +834,7 @@ export default function CustomersPage() {
             </div>
             <div className="text-center lg:text-left">
               <p className="text-xs lg:text-sm text-text-secondary">{t('customers')}</p>
-              <p className="text-sm lg:text-pos-lg font-bold">{customersData?.total || 0}</p>
+              <p className="text-sm lg:text-sm font-bold truncate">{customersData?.total || 0}</p>
             </div>
           </CardContent>
         </Card>
@@ -846,7 +846,7 @@ export default function CustomersPage() {
             </div>
             <div className="text-center lg:text-left">
               <p className="text-xs lg:text-sm text-text-secondary">{t('debt')}</p>
-              <p className="text-sm lg:text-pos-lg font-bold">{debtorsData?.data?.length || 0}</p>
+              <p className="text-sm lg:text-sm font-bold truncate">{debtorsData?.data?.length || 0}</p>
             </div>
           </CardContent>
         </Card>
@@ -858,7 +858,7 @@ export default function CustomersPage() {
             </div>
             <div className="text-center lg:text-left">
               <p className="text-xs lg:text-sm text-text-secondary">{t('totalDebt')}</p>
-              <p className="text-xs lg:text-pos-lg font-bold text-danger truncate">{formatMoney(debtorsData?.total_debt || 0)}</p>
+              <p className="text-xs lg:text-lg font-bold text-danger truncate">{formatMoney(debtorsData?.total_debt || 0)}</p>
             </div>
           </CardContent>
         </Card>
@@ -1246,7 +1246,7 @@ export default function CustomersPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-pos-lg font-bold">{selectedCustomer.name}</h3>
+                        <h3 className="text-sm font-bold truncate">{selectedCustomer.name}</h3>
                         {getTypeBadge(selectedCustomer.customer_type)}
                       </div>
                       <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-secondary">
@@ -1298,13 +1298,13 @@ export default function CustomersPage() {
                 <Card>
                   <CardContent className="p-4 text-center">
                     <p className="text-sm text-text-secondary">{t('totalPurchases')}</p>
-                    <p className="text-pos-lg font-bold text-primary">{formatMoney(selectedCustomer.total_purchases)}</p>
+                    <p className="text-sm font-bold text-primary truncate">{formatMoney(selectedCustomer.total_purchases)}</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
                     <p className="text-sm text-text-secondary">{t('currentDebt')}</p>
-                    <p className={cn("text-pos-lg font-bold", selectedCustomer.current_debt > 0 ? "text-danger" : "text-success")}>
+                    <p className={cn("text-lg font-bold", selectedCustomer.current_debt > 0 ? "text-danger" : "text-success")}>
                       {formatMoney(selectedCustomer.current_debt)}
                     </p>
                   </CardContent>
@@ -1312,13 +1312,13 @@ export default function CustomersPage() {
                 <Card>
                   <CardContent className="p-4 text-center">
                     <p className="text-sm text-text-secondary">{t('advanceBalance')}</p>
-                    <p className="text-pos-lg font-bold text-success">{formatMoney(selectedCustomer.advance_balance)}</p>
+                    <p className="text-sm font-bold text-success truncate">{formatMoney(selectedCustomer.advance_balance)}</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
                     <p className="text-sm text-text-secondary">{t('creditLimit')}</p>
-                    <p className="text-pos-lg font-bold">{formatMoney(selectedCustomer.credit_limit)}</p>
+                    <p className="text-sm font-bold truncate">{formatMoney(selectedCustomer.credit_limit)}</p>
                   </CardContent>
                 </Card>
               </div>

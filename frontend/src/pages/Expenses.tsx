@@ -273,7 +273,7 @@ export default function ExpensesPage() {
                       <DollarSign className="w-4 h-4 text-blue-500" />
                       <span className="text-xs text-gray-500">Daromad</span>
                     </div>
-                    <p className="text-lg font-bold">{formatMoney(reportData.revenue)}</p>
+                    <p className="text-sm font-bold truncate">{formatMoney(reportData.revenue)}</p>
                     <p className="text-[10px] text-gray-400 mt-1">{reportData.sales_count} ta sotuv</p>
                   </CardContent>
                 </Card>
